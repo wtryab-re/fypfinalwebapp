@@ -1,0 +1,72 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PulmoVision - TB & Pneumonia Detection</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-brand">PulmoVision</div>
+    <div class="navbar-links">
+        <a href="/">Home</a>
+        <a href="/cases">Cases Dashboard</a>
+    </div>
+</nav>
+
+<section class="upload-section">
+    <div class="upload-card">
+        <h1>Upload Chest X-Ray</h1>
+        <form id="upload-form" action="/predict" method="POST" enctype="multipart/form-data">
+            <div class="preview-wrapper">
+                <img id="file-preview" src="#" alt="Image Preview" style="display:none;">
+            </div>
+            <label for="file-input" class="file-label">Choose Image</label>
+            <input type="file" id="file-input" name="file" accept="image/*" onchange="showPreview(event)">
+            <input type="submit" class="btn" value="Predict" onclick="startProgress()">
+            <progress id="progressBar" value="0" max="100" style="display:none;"></progress>
+            <span id="status"></span>
+        </form>
+    </div>
+</section>
+
+<script>
+function showPreview(event){
+    if(event.target.files.length > 0){
+        const src = URL.createObjectURL(event.target.files[0]);
+        const preview = document.getElementById("file-preview");
+        const progress = document.getElementById("progressBar");
+        preview.src = src;
+        preview.style.display = "block";
+        progress.style.display = "block";
+    }
+}
+
+function startProgress() {
+    const bar = document.getElementById('progressBar');
+    const status = document.getElementById('status');
+    bar.style.display = "block";
+    let val = 0;
+    const interval = setInterval(() => {
+        if(val < 50){
+            status.innerHTML = "Running Quality Checks...";
+            val++;
+        } else if(val < 100){
+            status.innerHTML = "Running AI Prediction...";
+            val++;
+        } else {
+            status.innerHTML = "Processing Complete";
+            clearInterval(interval);
+        }
+        bar.value = val;
+    }, 30);
+}
+</script>
+
+</body>
+</html>

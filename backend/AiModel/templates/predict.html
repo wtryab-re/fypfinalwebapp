@@ -1,0 +1,167 @@
+<!-- //predict.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PulmoVision – AI Screening</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar">
+    <div class="navbar-brand">PulmoVision</div>
+    <div class="navbar-links">
+        <a href="/">Home</a>
+        <a href="/cases">Cases Dashboard</a>
+    </div>
+</nav>
+
+<!-- ================= MAIN ================= -->
+<section class="upload-section">
+<div class="upload-card">
+
+<h1>Chest X-Ray Screening</h1>
+<p class="section-subtitle">
+Upload a frontal chest X-ray for automated quality assessment and AI analysis.
+</p>
+
+<!-- ================= STEP 1 ================= -->
+<div class="step-label">Step 1 · Upload Image</div>
+
+<form id="upload-form" action="/predict" method="POST" enctype="multipart/form-data">
+
+<div class="preview-wrapper">
+    <img id="previewImage" style="display:none; max-width:300px; max-height:300px; object-fit:contain;">
+</div>
+
+<label class="file-label">
+    Select X-ray Image
+    <input type="file" name="file" accept="image/*" onchange="previewImage(event)" required>
+</label>
+
+<br><br>
+
+<progress id="progressBar" value="0" max="100" style="display:none;"></progress>
+<span id="status"></span>
+
+<input type="hidden" id="qcFailFlag" value="{{ 'true' if qc_fail else 'false' }}">
+</form>
+
+<!-- ================= QC RESULTS ================= -->
+{% if qc_results %}
+<div class="step-label">Step 2 · Image Quality Assessment</div>
+
+{% if qc_fail %}
+<div class="qc-box qc-fail">
+    <h3>Image Quality Check Failed</h3>
+    <ul>
+        {% if not qc_results.blur %}<li>Image is blurred — please retake with proper focus.</li>{% endif %}
+        {% if not qc_results.contrast %}<li>Low contrast — ensure correct exposure.</li>{% endif %}
+        {% if not qc_results.brightness %}<li>Exposure is too dark or too bright.</li>{% endif %}
+        {% if not qc_results.resolution %}<li>Image resolution is insufficient.</li>{% endif %}
+        {% if not qc_results.noise %}<li>Image contains excessive noise.</li>{% endif %}
+        {% if not qc_results.orientation %}<li>Incorrect orientation — upload frontal chest view.</li>{% endif %}
+    </ul>
+
+    <button class="btn secondary" onclick="window.location.href='/'">
+        Start New Upload
+    </button>
+</div>
+{% else %}
+<div class="qc-box qc-pass">
+    <h3>Image Quality Check Passed</h3>
+    <p>Image meets minimum quality requirements for AI interpretation.</p>
+</div>
+{% endif %}
+{% endif %}
+
+<!-- ================= RESULTS ================= -->
+{% if result %}
+<div class="step-label">Step 3 · AI Prediction</div>
+
+<div class="results-section">
+
+<div class="result-card">
+    <h3>Original Image</h3>
+    <img src="{{ url_for('upload_img', filename=file_name) }}" style="max-width:300px; max-height:300px; object-fit:contain;">
+</div>
+
+<div class="result-card">
+    <h3>AI Attention Map (Grad-CAM)</h3>
+    <img src="{{ url_for('upload_img', filename=heatmap_file) }}" style="max-width:300px; max-height:300px; object-fit:contain;">
+</div>
+
+<table class="confidence-table">
+<thead>
+<tr>
+    <th>Condition</th>
+    <th>Confidence</th>
+</tr>
+</thead>
+<tbody>
+{% for label, conf in result %}
+<tr>
+    <td>{{ label }}</td>
+    <td>{{ conf }}%</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<button class="btn secondary" onclick="window.location.href='/'">
+    Start New Case
+</button>
+
+<p class="helper-text">
+⚠ This tool is intended for research and screening support only.
+</p>
+
+</div>
+{% endif %}
+
+</div>
+</section>
+
+<!-- ================= JS ================= -->
+<script>
+function previewImage(event){
+    const img = document.getElementById("previewImage");
+    img.src = URL.createObjectURL(event.target.files[0]);
+    img.style.display = "block";
+}
+
+function startQC(){
+    const bar = document.getElementById("progressBar");
+    const status = document.getElementById("status");
+
+    bar.style.display = "block";
+    let val = 0;
+
+    const steps = [
+        "Uploading image…",
+        "Checking image sharpness…",
+        "Checking contrast and exposure…",
+        "Checking noise levels…",
+        "Checking orientation…",
+        "Finalizing quality assessment…"
+    ];
+
+    function progress(){
+        if(val < 100){
+            bar.value = val;
+            status.innerHTML = steps[Math.min(Math.floor(val/20), steps.length-1)];
+            val += 5;
+            setTimeout(progress, 120);
+        }
+    }
+    progress();
+}
+</script>
+
+</body>
+</html>

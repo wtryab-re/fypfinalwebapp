@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PulmoVision – Cases Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    
+    min-height: 100vh;
+}
+
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.dashboard-header {
+    text-align: center;
+    color: rgb(0, 0, 0);
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.dashboard-header p {
+    font-size: 1.1rem;
+    opacity: 0.95;
+}
+
+.filter-section {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.8rem 1.8rem;
+    border: none;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    color: rgba(0, 0, 0, 0.9);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid rgba(34, 34, 34, 0.299);
+}
+
+.filter-btn:hover {
+    background: rgba(155, 125, 253, 0.385);
+    color: #000000;
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+    border-color: transparent;
+}
+
+.cases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.case-card {
+    background: white;
+    border-radius: 20px;
+    padding: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.case-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+}
+
+.case-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.5rem;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.patient-id {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-processed {
+    background: #10b981;
+    color: white;
+}
+
+.status-failed {
+    background: #ef4444;
+    color: white;
+}
+
+.status-pending {
+    background: #f59e0b;
+    color: white;
+}
+
+.case-body {
+    padding: 1.5rem;
+}
+
+.case-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.prediction-result {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 1.2rem;
+    border-radius: 12px;
+    margin: 1rem 0;
+}
+
+.prediction-label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.confidence-text {
+    font-size: 1rem;
+    color: #475569;
+    font-weight: 600;
+}
+
+.error-result {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    padding: 1.2rem;
+    border-radius: 12px;
+    margin: 1rem 0;
+}
+
+.error-label {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #991b1b;
+    margin-bottom: 0.5rem;
+}
+
+.error-text {
+    font-size: 0.9rem;
+    color: #b91c1c;
+}
+
+.pending-result {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    padding: 1.2rem;
+    border-radius: 12px;
+    margin: 1rem 0;
+}
+
+.pending-label {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #92400e;
+}
+
+.case-meta {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-top: 1rem;
+    line-height: 1.6;
+}
+
+.case-meta strong {
+    color: #334155;
+}
+
+.view-details-btn {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-align: center;
+    border-radius: 12px;
+    text-decoration: none;
+    margin-top: 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.view-details-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.no-cases {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+}
+
+.no-cases h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+</style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="navbar-brand">PulmoVision</div>
+    <div class="navbar-links">
+        
+        <a href="/cases">Cases Dashboard</a>
+    </div>
+</nav>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Cases Dashboard</h1>
+        <p>View all submitted cases with AI analysis results</p>
+    </div>
+
+    <div class="filter-section">
+        <button class="filter-btn active" onclick="filterCases('all')">All Cases</button>
+        <button class="filter-btn" onclick="filterCases('AI_PROCESSED')">AI Processed</button>
+        <button class="filter-btn" onclick="filterCases('AI_FAILED')">AI Failed</button>
+        <button class="filter-btn" onclick="filterCases('APPROVED_FOR_AI')">Pending AI</button>
+    </div>
+
+    {% if cases %}
+    <div class="cases-grid">
+        {% for case in cases %}
+        <div class="case-card" data-status="{{ case['status'] }}">
+            <div class="case-header">
+                <span class="patient-id">{{ case['patientId'] }}</span>
+                {% set status_text = case['status']|replace('_', ' ') %}
+                <span class="status-badge 
+                    {% if case['status'] == 'AI_PROCESSED' %}status-processed
+                    {% elif case['status'] == 'AI_FAILED' %}status-failed
+                    {% else %}status-pending{% endif %}">
+                    {{ status_text }}
+                </span>
+            </div>
+
+            <div class="case-body">
+                <img src="{{ case['imageUrl'] }}" alt="X-ray" class="case-image">
+
+                {% if case.get('ai_data') and case['ai_data'].get('predictions') %}
+                <div class="prediction-result">
+                    {% set top_prediction = case['ai_data']['predictions'][0] %}
+                    <div class="prediction-label">{{ top_prediction['label'] }}</div>
+                    <div class="confidence-text">Confidence: {{ "%.2f"|format(top_prediction['confidence']) }}%</div>
+                </div>
+                {% elif case['status'] == 'AI_FAILED' %}
+                <div class="error-result">
+                    <div class="error-label">AI Processing Failed</div>
+                    {% if case.get('aiError') %}
+                        {% set error_msg = case['aiError'] %}
+                        {% if 'ECONNRESET' in error_msg or 'ECONNREFUSED' in error_msg %}
+                            <div class="error-text">AI service temporarily unavailable. Please try again.</div>
+                        {% elif 'quality checks' in error_msg.lower() %}
+                            <div class="error-text">Image quality did not meet minimum standards for analysis.</div>
+                        {% elif 'timeout' in error_msg.lower() %}
+                            <div class="error-text">AI processing timed out. Image may be too complex.</div>
+                        {% else %}
+                            <div class="error-text">{{ error_msg }}</div>
+                        {% endif %}
+                    {% else %}
+                        <div class="error-text">Unknown error occurred during processing.</div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="pending-result">
+                    <div class="pending-label">Awaiting AI Processing</div>
+                </div>
+                {% endif %}
+
+                <div class="case-meta">
+                    <div><strong>History:</strong> {{ case['patientHistory'][:50] }}...</div>
+                    <div><strong>Submitted:</strong> {{ case['createdAt'][:19] if case.get('createdAt') else 'N/A' }}</div>
+                </div>
+
+                <a href="/case/{{ case['_id'] }}" class="view-details-btn">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-cases">
+        <h2>No cases found</h2>
+        <p>Submit a case from the mobile app to see AI results here.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function filterCases(status) {
+    const cards = document.querySelectorAll('.case-card');
+    const buttons = document.querySelectorAll('.filter-btn');
+    
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    cards.forEach(card => {
+        if (status === 'all' || card.dataset.status === status) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Details - {{ case.patientId }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+.detail-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.detail-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.detail-card h2 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.5rem;
+}
+
+.xray-image {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.info-value {
+    color: #6c757d;
+}
+
+.predictions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.predictions-table th,
+.predictions-table td {
+    padding: 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.predictions-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.qc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.qc-item {
+    padding: 0.8rem;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.qc-pass {
+    background: #d4edda;
+    color: #155724;
+}
+
+.qc-fail {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.back-btn:hover {
+    background: #5a6268;
+}
+</style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="navbar-brand">PulmoVision</div>
+    <div class="navbar-links">
+        <a href="/">Manual Upload</a>
+        <a href="/cases">Cases Dashboard</a>
+    </div>
+</nav>
+
+<div class="detail-container">
+    <a href="/cases" class="back-btn">← Back to Dashboard</a>
+    
+    <h1>Case Details: {{ case['patientId'] }}</h1>
+
+    <div class="detail-grid">
+        <!-- Left Column: Images -->
+        <div>
+            <div class="detail-card">
+                <h2>Original X-Ray</h2>
+                <img src="{{ case['imageUrl'] }}" alt="X-ray" class="xray-image">
+            </div>
+
+            {% if case.get('ai_data') and case['ai_data'].get('heatmapUrl') %}
+            <div class="detail-card" style="margin-top: 2rem;">
+                <h2>AI Attention Map (Grad-CAM)</h2>
+                <img src="{{ case['ai_data']['heatmapUrl'] }}" alt="Heatmap" class="xray-image">
+                <p style="font-size: 0.9rem; color: #6c757d;">
+                    Highlighted areas show regions the AI focused on for its prediction.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column: Details -->
+        <div>
+            <div class="detail-card">
+                <h2>Patient Information</h2>
+                <div class="info-row">
+                    <span class="info-label">Patient ID</span>
+                    <span class="info-value">{{ case['patientId'] }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    {% set status_text = case['status']|replace('_', ' ') %}
+                    <span class="info-value">{{ status_text }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Submitted</span>
+                    <span class="info-value">{{ case['createdAt'][:19] if case.get('createdAt') else 'N/A' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Patient History</span>
+                </div>
+                <p style="color: #6c757d; margin-top: 0.5rem;">{{ case['patientHistory'] }}</p>
+            </div>
+
+            {% if case.get('ai_data') %}
+            <div class="detail-card" style="margin-top: 2rem;">
+                <h2>AI Predictions</h2>
+                <table class="predictions-table">
+                    <thead>
+                        <tr>
+                            <th>Condition</th>
+                            <th>Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pred in case['ai_data']['predictions'] %}
+                        <tr>
+                            <td><strong>{{ pred['label'] }}</strong></td>
+                            <td>{{ "%.2f"|format(pred['confidence']) }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 1rem;">
+                    <div class="info-row">
+                        <span class="info-label">Model Version</span>
+                        <span class="info-value">{{ case['ai_data']['modelVersion'] }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Processed At</span>
+                        <span class="info-value">{{ case['ai_data']['processedAt'][:19] if case['ai_data'].get('processedAt') else 'N/A' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-card" style="margin-top: 2rem;">
+                <h2>Quality Checks</h2>
+                <div class="qc-grid">
+                    {% for key, value in case['ai_data']['qcResults'].items() %}
+                    {% if key != 'qc_pass' %}
+                    <div class="qc-item {{ 'qc-pass' if value else 'qc-fail' }}">
+                        <span>{{ key.replace('_', ' ').title() }}</span>
+                        <span>{{ '✓ Pass' if value else '✗ Fail' }}</span>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% elif case['status'] == 'AI_FAILED' %}
+            <div class="detail-card" style="margin-top: 2rem; background: #fee2e2;">
+                <h2 style="color: #991b1b;">AI Processing Failed</h2>
+                {% if case.get('aiError') %}
+                    {% set error_msg = case['aiError'] %}
+                    {% if 'ECONNRESET' in error_msg or 'ECONNREFUSED' in error_msg %}
+                        <p style="color: #b91c1c;">AI service was temporarily unavailable. Please try reprocessing this case.</p>
+                    {% elif 'quality checks' in error_msg.lower() %}
+                        <p style="color: #b91c1c;">The uploaded image did not meet minimum quality standards for AI analysis. Please upload a higher quality X-ray image.</p>
+                    {% elif 'timeout' in error_msg.lower() %}
+                        <p style="color: #b91c1c;">AI processing timed out. The image may be too complex or the server was overloaded.</p>
+                    {% else %}
+                        <p style="color: #b91c1c;">{{ error_msg }}</p>
+                    {% endif %}
+                {% else %}
+                    <p style="color: #b91c1c;">An unknown error occurred during AI processing.</p>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="detail-card" style="margin-top: 2rem; background: #fff3cd;">
+                <h2 style="color: #856404;">AI Processing Pending</h2>
+                <p style="color: #856404;">This case is awaiting AI analysis.</p>
+            </div>
+            {% endif %}
+
+            <div class="detail-card" style="margin-top: 2rem;">
+                <h2>Manual Verification</h2>
+                <div class="qc-item {{ 'qc-pass' if case['manualChecks']['isLungs'] else 'qc-fail' }}">
+                    <span>Is picture of lungs?</span>
+                    <span>{{ 'Yes' if case['manualChecks']['isLungs'] else 'No' }}</span>
+                </div>
+                <div class="qc-item {{ 'qc-pass' if case['manualChecks']['isClear'] else 'qc-fail' }}" style="margin-top: 0.5rem;">
+                    <span>Is X-ray clear?</span>
+                    <span>{{ 'Yes' if case['manualChecks']['isClear'] else 'No' }}</span>
+                </div>
+                <div class="qc-item {{ 'qc-pass' if case['manualChecks']['isVerified'] else 'qc-fail' }}" style="margin-top: 0.5rem;">
+                    <span>All details verified?</span>
+                    <span>{{ 'Yes' if case['manualChecks']['isVerified'] else 'No' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
