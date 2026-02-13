@@ -53,7 +53,7 @@ const PulmoVisionHomepage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white scroll-smooth">
       {/* NAVBAR */}
       <nav className="sticky top-0 bg-white px-[5%] py-4 flex justify-between items-center z-50 border-b border-gray-200">
         <div className="flex flex-row items-center gap-3 ">
