@@ -4,6 +4,8 @@ import axios from "axios";
 import { AdminContext } from "../../context/AdminContext";
 import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/assets";
+import { useEffect } from "react";
+import debounce from "lodash.debounce";
 
 const AddDoctor = () => {
   const [docImg, setDocImg] = useState(null);
@@ -21,11 +23,29 @@ const AddDoctor = () => {
   const [address2, setAddress2] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const [regNo, setRegNo] = useState("");
+  const [fatherName, setFatherName] = useState("");
+  const [licenseStatus, setLicenseStatus] = useState("");
+  const [isVerified, setisVerified] = useState(false);
+  const [responsedata, setresponsedata] = useState("");
+
   const { backendUrl } = useContext(AppContext);
   const { aToken } = useContext(AdminContext);
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+
+    // If PMDC is not verified, ask the admin first
+    if (!isVerified) {
+      const confirmProceed = window.confirm(
+        "⚠️ This doctor is not PMDC verified.\n\nAre you sure you want to add them anyway?",
+      );
+      if (!confirmProceed) {
+        toast.info("Submission cancelled.");
+        return;
+      }
+    }
+
     setIsLoading(true);
 
     try {
@@ -44,17 +64,23 @@ const AddDoctor = () => {
       formData.append("degree", degree);
       formData.append(
         "address",
-        JSON.stringify({ line1: address1, line2: address2 })
+        JSON.stringify({ line1: address1, line2: address2 }),
       );
 
       const { data } = await axios.post(
         backendUrl + "/api/admin/add-doctor",
         formData,
-        { headers: { aToken } }
+        { headers: { aToken } },
       );
+
       if (data.success) {
-        toast.success(data.message);
-        // Reset form
+        toast.success(
+          isVerified
+            ? "Doctor added successfully (PMDC verified ✅)"
+            : "Doctor added successfully (not PMDC verified ⚠️)",
+        );
+
+        // Reset form fields
         setDocImg(null);
         setCertificate(null);
         setName("");
@@ -68,6 +94,10 @@ const AddDoctor = () => {
         setExperience("1 Year");
         setSpeciality("General physician");
         setShowPassword(false);
+        setRegNo("");
+        setFatherName("");
+        setLicenseStatus("");
+        setisVerified(false);
       } else {
         toast.error(data.message);
       }
@@ -78,6 +108,61 @@ const AddDoctor = () => {
       setIsLoading(false);
     }
   };
+
+  const doctorVerification = async (reg, fullName, father) => {
+    if (!reg || !fullName || !father) {
+      setisVerified(false);
+      setLicenseStatus("");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "https://hospitals-inspections.pmdc.pk/api/DRC/GetData",
+        new URLSearchParams({
+          RegistrationNo: reg,
+          Name: fullName,
+          FatherName: father,
+        }),
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          },
+        },
+      );
+
+      console.log(response.data.data);
+
+      if (
+        response?.data &&
+        Object.keys(response.data?.data).length === 1 &&
+        response.data?.data?.[0]?.Name === name.toUpperCase() &&
+        response.data?.data?.[0]?.FatherName === fatherName.toUpperCase() &&
+        response.data?.data?.[0]?.RegistrationNo === regNo.toUpperCase()
+      ) {
+        setisVerified(true);
+        setLicenseStatus("This doctor is PMDC Verified");
+      } else {
+        setisVerified(false);
+        setLicenseStatus("This doctor is not PMDC Verified ❌");
+      }
+    } catch (error) {
+      console.error("Error verifying doctor:", error);
+      setisVerified(false);
+      setLicenseStatus("PMDC Not Verified ❌");
+    }
+  };
+
+  useEffect(() => {
+    const debouncedVerify = debounce(() => {
+      if (regNo && name && fatherName) {
+        doctorVerification(regNo, name, fatherName);
+      }
+    }, 1000); // 1 second delay
+
+    debouncedVerify();
+    return () => debouncedVerify.cancel();
+  }, [regNo, name, fatherName]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -96,7 +181,8 @@ const AddDoctor = () => {
             Add New Doctor
           </h1>
           <p className="text-gray-600">
-            Register a new medical professional to the healthcare system.
+            Enter Details as registered with PMDC and ensure all information is
+            accurate for verification.
           </p>
         </div>
 
@@ -109,81 +195,10 @@ const AddDoctor = () => {
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Profile Image Upload */}
-                <div>
-                  <label className={labelStyle}>Profile Picture</label>
-                  <label htmlFor="doc-img" className="cursor-pointer">
-                    <div className="relative group">
-                      <div className="w-full h-48 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center hover:border-[#3a8dff] transition-all overflow-hidden bg-gray-50">
-                        {docImg ? (
-                          <img
-                            src={URL.createObjectURL(docImg)}
-                            alt="Doctor Profile Preview"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <>
-                            <svg
-                              className="w-10 h-10 text-gray-400 mb-2"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                              />
-                            </svg>
-                            <p className="text-gray-500 text-sm font-medium">
-                              Click to upload profile picture
-                            </p>
-                            <p className="text-gray-400 text-xs mt-1">
-                              PNG, JPG up to 5MB
-                            </p>
-                          </>
-                        )}
-                      </div>
-                      {docImg && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setDocImg(null);
-                          }}
-                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      )}
-                    </div>
-                  </label>
-                  <input
-                    onChange={(e) => setDocImg(e.target.files[0])}
-                    type="file"
-                    id="doc-img"
-                    accept="image/*"
-                    hidden
-                  />
-                </div>
-
                 {/* Certificate Upload */}
                 <div>
                   <label className={labelStyle}>
-                    Medical Certificate <span className="text-red-500">*</span>
+                    Medical License <span className="text-red-500">*</span>
                   </label>
                   <label htmlFor="certificate" className="cursor-pointer">
                     <div className="relative group">
@@ -232,7 +247,7 @@ const AddDoctor = () => {
                               />
                             </svg>
                             <p className="text-gray-500 text-sm font-medium">
-                              Click to upload certificate
+                              Click to upload license
                             </p>
                             <p className="text-gray-400 text-xs mt-1">
                               PNG, JPG, PDF up to 5MB (Required)
@@ -369,6 +384,48 @@ const AddDoctor = () => {
                 </div>
               </div>
 
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-3 mb-3">
+                  PMDC Verification
+                </h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className={labelStyle}>Father Name</label>
+                    <input
+                      onChange={(e) => setFatherName(e.target.value)}
+                      value={fatherName}
+                      className={inputStyle}
+                      type="text"
+                      placeholder="Enter doctor's father name"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className={labelStyle}>Registration Number</label>
+                    <input
+                      onChange={(e) => setRegNo(e.target.value)}
+                      value={regNo}
+                      className={inputStyle}
+                      type="text"
+                      placeholder="Enter registration number"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {licenseStatus && name && fatherName && regNo && (
+                  <p
+                    className={`mt-2 text-sm font-medium text-center  ${
+                      isVerified ? "text-green-600" : "text-red-500"
+                    }`}
+                  >
+                    {licenseStatus}
+                  </p>
+                )}
+              </div>
+
               {/* 3. Professional Details & Address */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-gray-800 border-b pb-3 mb-3">
@@ -391,7 +448,7 @@ const AddDoctor = () => {
                           >
                             {year} Year{year > 1 ? "s" : ""}
                           </option>
-                        )
+                        ),
                       )}
                     </select>
                   </div>

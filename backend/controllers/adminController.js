@@ -115,7 +115,7 @@ const addDoctor = async (req, res) => {
         {
           resource_type: "image",
           folder: "doctors/certificates",
-        }
+        },
       );
       certificateUrl = certificateUpload.secure_url;
     }
@@ -275,7 +275,7 @@ const updateWorkerStatus = async (req, res) => {
     console.log(
       `📝 Updating worker ${workerId} to ${
         isApproved ? "approved" : "rejected"
-      }`
+      }`,
     );
 
     if (!workerId) {
@@ -300,7 +300,7 @@ const updateWorkerStatus = async (req, res) => {
     await User.findByIdAndUpdate(workerId, { isApproved });
 
     console.log(
-      `✅ Worker ${isApproved ? "approved" : "rejected"} successfully`
+      `✅ Worker ${isApproved ? "approved" : "rejected"} successfully`,
     );
 
     res.json({
@@ -360,7 +360,10 @@ const getAllCases = async (req, res) => {
       .sort({ createdAt: -1 });
 
     console.log(`✅ Found ${cases.length} cases`);
-    console.log(`✅ First case has aiResult:`, cases[0]?.aiResult ? 'YES (populated)' : 'NO');
+    console.log(
+      `✅ First case has aiResult:`,
+      cases[0]?.aiResult ? "YES (populated)" : "NO",
+    );
 
     res.json({ success: true, cases });
   } catch (error) {

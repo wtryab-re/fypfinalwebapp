@@ -76,19 +76,19 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a78d2]/10 to-indigo-100 p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Header with Toggle */}
-          <div className="relative bg-gradient-to-r from-blue-600 to-indigo-700 p-6">
+          <div className="relative bg-gradient-to-r from-[#1a78d2] to-indigo-700 p-6">
             <div className="flex items-center justify-center mb-4">
               <div className="flex bg-white/20 rounded-full p-1">
                 <button
                   onClick={() => handleStateChange("Admin")}
                   className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 ${
                     state === "Admin"
-                      ? "bg-white text-blue-700 shadow-lg"
-                      : "text-white hover:text-blue-200"
+                      ? "bg-white text-[#1a78d2] shadow-lg"
+                      : "text-white hover:text-[#1a78d2] hover:bg-white/30"
                   }`}
                 >
                   <Shield size={18} />
@@ -98,8 +98,8 @@ const Login = () => {
                   onClick={() => handleStateChange("Doctor")}
                   className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 ${
                     state === "Doctor"
-                      ? "bg-white text-blue-700 shadow-lg"
-                      : "text-white hover:text-blue-200"
+                      ? "bg-white text-[#1a78d2] shadow-lg"
+                      : "text-white hover:text-[#1a78d2] hover:bg-white/30"
                   }`}
                 >
                   <Stethoscope size={18} />
@@ -117,7 +117,7 @@ const Login = () => {
                 }`}
               >
                 <h1 className="text-2xl font-bold text-white">{state} Login</h1>
-                <p className="text-blue-100 mt-2">
+                <p className="text-[#e0f2ff] mt-2">
                   {state === "Admin"
                     ? "Access the administration panel"
                     : "Sign in to your medical dashboard"}
@@ -145,7 +145,7 @@ const Login = () => {
                   <input
                     onChange={(e) => setEmail(e.target.value)}
                     value={email}
-                    className="border border-gray-300 rounded-lg w-full pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className="border border-gray-300 rounded-lg w-full pl-10 pr-4 py-3 focus:ring-2 focus:ring-[#1a78d2]-500 focus:border-transparent transition-all duration-200"
                     type="email"
                     placeholder="Enter your email"
                     required
@@ -165,7 +165,7 @@ const Login = () => {
                   <input
                     onChange={(e) => setPassword(e.target.value)}
                     value={password}
-                    className="border border-gray-300 rounded-lg w-full pl-10 pr-12 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className="border border-gray-300 rounded-lg w-full pl-10 pr-12 py-3 focus:ring-2 focus:ring-[#1a78d2]-500 focus:border-transparent transition-all duration-200"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     required
@@ -184,7 +184,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                className="w-full bg-gradient-to-r from-[#1a78d2] to-indigo-700 text-white py-3 px-4 rounded-lg font-semibold hover:from-[#1a78d2] hover:to-indigo-800 focus:ring-2 focus:ring-[#1a78d2]-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
