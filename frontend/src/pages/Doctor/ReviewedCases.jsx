@@ -21,15 +21,17 @@ const ReviewedCases = () => {
     if (myCases) {
       console.log("🔍 Filtering reviewed cases from myCases...");
       console.log("Total my cases:", myCases.length);
-      
-      const reviewedCases = myCases.filter((caseItem) => caseItem.status === "reviewed");
+
+      const reviewedCases = myCases.filter(
+        (caseItem) => caseItem.status === "reviewed",
+      );
 
       console.log("✅ Found", reviewedCases.length, "reviewed cases");
 
       const searched = reviewedCases.filter(
         (c) =>
           c.patientId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          c.report?.diagnosis?.toLowerCase().includes(searchTerm.toLowerCase())
+          c.report?.diagnosis?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
 
       setFilteredCases(searched);
@@ -171,15 +173,21 @@ const ReviewedCases = () => {
                       </button>
                     </td>
                     <td className="px-6 py-4 align-middle">
-                      <button
-                        onClick={() => {
-                          setSelectedCase(item);
-                          setShowAIModal(true);
-                        }}
-                        className="px-4 py-2 bg-purple-50 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-100 transition"
-                      >
-                        View AI Report
-                      </button>
+                      {item.aiResult ? (
+                        <button
+                          onClick={() => {
+                            setSelectedCase(item);
+                            setShowAIModal(true);
+                          }}
+                          className="px-4 py-2 bg-purple-50 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-100 transition"
+                        >
+                          View AI Report
+                        </button>
+                      ) : (
+                        <span className="text-sm text-gray-500">
+                          AI Report Not Available
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -260,7 +268,7 @@ const ReviewedCases = () => {
                         {selectedCase.report[field]}
                       </div>
                     </div>
-                  )
+                  ),
               )}
 
               <div className="pt-4 border-t border-gray-200 text-sm text-gray-600">
@@ -293,15 +301,29 @@ const ReviewedCases = () => {
           <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
             <div className="px-6 py-4 border-b flex items-center justify-between bg-gradient-to-r from-purple-50 to-blue-50">
               <div>
-                <h2 className="text-xl font-bold text-gray-800">AI Analysis Report</h2>
-                <p className="text-sm text-gray-600">Patient ID: {selectedCase.patientId}</p>
+                <h2 className="text-xl font-bold text-gray-800">
+                  AI Analysis Report
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Patient ID: {selectedCase.patientId}
+                </p>
               </div>
               <button
                 onClick={() => setShowAIModal(false)}
                 className="p-2 hover:bg-gray-100 rounded-full transition-all"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -310,7 +332,9 @@ const ReviewedCases = () => {
               {/* Images Section */}
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Original X-Ray</h3>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                    Original X-Ray
+                  </h3>
                   <img
                     src={selectedCase.imageUrl}
                     alt="X-ray"
@@ -320,38 +344,56 @@ const ReviewedCases = () => {
                 </div>
                 {selectedCase.aiResult.heatmapUrl && (
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-700 mb-2">AI Attention Map (Grad-CAM)</h3>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                      AI Attention Map (Grad-CAM)
+                    </h3>
                     <img
                       src={selectedCase.aiResult.heatmapUrl}
                       alt="Heatmap"
                       className="w-full h-64 object-cover border rounded-lg cursor-pointer hover:opacity-80"
-                      onClick={() => setExpandedImage(selectedCase.aiResult.heatmapUrl)}
+                      onClick={() =>
+                        setExpandedImage(selectedCase.aiResult.heatmapUrl)
+                      }
                     />
-                    <p className="text-xs text-gray-500 mt-1">Highlighted areas show AI focus regions</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Highlighted areas show AI focus regions
+                    </p>
                   </div>
                 )}
               </div>
 
               {/* Predictions */}
               <div className="mb-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-3">AI Predictions</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-3">
+                  AI Predictions
+                </h3>
                 <div className="space-y-3">
                   {selectedCase.aiResult.predictions.map((pred, idx) => (
                     <div key={idx} className="bg-gray-50 p-4 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-base font-semibold text-gray-800">{pred.label}</span>
-                        <span className={`text-lg font-bold ${
-                          pred.confidence > 80 ? 'text-red-600' : 
-                          pred.confidence > 50 ? 'text-orange-600' : 'text-green-600'
-                        }`}>
+                        <span className="text-base font-semibold text-gray-800">
+                          {pred.label}
+                        </span>
+                        <span
+                          className={`text-lg font-bold ${
+                            pred.confidence > 80
+                              ? "text-red-600"
+                              : pred.confidence > 50
+                                ? "text-orange-600"
+                                : "text-green-600"
+                          }`}
+                        >
                           {pred.confidence.toFixed(2)}%
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${
-                            pred.confidence > 80 ? 'bg-red-500' : 
-                            pred.confidence > 50 ? 'bg-orange-500' : 'bg-green-500'
+                            pred.confidence > 80
+                              ? "bg-red-500"
+                              : pred.confidence > 50
+                                ? "bg-orange-500"
+                                : "bg-green-500"
                           }`}
                           style={{ width: `${pred.confidence}%` }}
                         ></div>
@@ -364,21 +406,30 @@ const ReviewedCases = () => {
               {/* Quality Checks */}
               {selectedCase.aiResult.qcResults && (
                 <div>
-                  <h3 className="text-lg font-bold text-gray-800 mb-3">Quality Checks</h3>
+                  <h3 className="text-lg font-bold text-gray-800 mb-3">
+                    Quality Checks
+                  </h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {Object.entries(selectedCase.aiResult.qcResults).map(([key, value]) => 
-                      key !== 'qc_pass' && (
-                        <div key={key} className={`p-3 rounded-lg ${value ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-gray-700">
-                              {key.replace('_', ' ').charAt(0).toUpperCase() + key.replace('_', ' ').slice(1)}
-                            </span>
-                            <span className={`text-sm font-bold ${value ? 'text-green-700' : 'text-red-700'}`}>
-                              {value ? '✓ Pass' : '✗ Fail'}
-                            </span>
+                    {Object.entries(selectedCase.aiResult.qcResults).map(
+                      ([key, value]) =>
+                        key !== "qc_pass" && (
+                          <div
+                            key={key}
+                            className={`p-3 rounded-lg ${value ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-700">
+                                {key.replace("_", " ").charAt(0).toUpperCase() +
+                                  key.replace("_", " ").slice(1)}
+                              </span>
+                              <span
+                                className={`text-sm font-bold ${value ? "text-green-700" : "text-red-700"}`}
+                              >
+                                {value ? "✓ Pass" : "✗ Fail"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      )
+                        ),
                     )}
                   </div>
                 </div>
@@ -387,12 +438,16 @@ const ReviewedCases = () => {
               {/* Model Info */}
               <div className="mt-6 pt-4 border-t">
                 <p className="text-sm text-gray-600">
-                  Model: {selectedCase.aiResult.modelVersion || 'MobileNetV2-v1'}
+                  Model:{" "}
+                  {selectedCase.aiResult.modelVersion || "MobileNetV2-v1"}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Processed: {selectedCase.aiResult.processedAt 
-                    ? new Date(selectedCase.aiResult.processedAt).toLocaleString()
-                    : 'Recently'}
+                  Processed:{" "}
+                  {selectedCase.aiResult.processedAt
+                    ? new Date(
+                        selectedCase.aiResult.processedAt,
+                      ).toLocaleString()
+                    : "Recently"}
                 </p>
               </div>
             </div>

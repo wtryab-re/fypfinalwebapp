@@ -205,7 +205,9 @@ const getCases = async (req, res) => {
 
     // Fetch all AI_PROCESSED cases with AI results populated
     const allCases = await Case.find({
-      status: { $in: ["AI_PROCESSED", "ASSIGNED_TO_DOCTOR", "reviewed"] },
+      status: {
+        $in: ["AI_PROCESSED", "AI_FAILED", "ASSIGNED_TO_DOCTOR", "reviewed"],
+      },
     })
       .populate("report.doctorId", "name speciality")
       .populate("aiResult")
@@ -301,6 +303,7 @@ const acceptCase = async (req, res) => {
       });
     }
 
+    /*
     // Check if case is in correct status
     if (caseData.status !== "AI_PROCESSED") {
       return res.json({
@@ -308,7 +311,7 @@ const acceptCase = async (req, res) => {
         message: "Case is not ready for assignment",
       });
     }
-
+*/
     // Assign the case
     caseData.assignedDoctor = docId;
     caseData.status = "ASSIGNED_TO_DOCTOR";

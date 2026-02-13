@@ -144,7 +144,7 @@ const DoctorDashboard = () => {
         </h1>
         <div className="flex gap-4 flex-wrap">
           <div className="bg-white border border-gray-200 rounded-lg shadow p-4 w-40">
-            <p className="text-gray-500 text-sm">Available Cases</p>
+            <p className="text-gray-500 text-sm">Pending Cases</p>
             <p className="text-xl font-bold text-gray-800">{totalAvailable}</p>
           </div>
           <div className="bg-white border border-gray-200 rounded-lg shadow p-4 w-40">
@@ -176,7 +176,7 @@ const DoctorDashboard = () => {
                   : "text-gray-600 hover:bg-gray-100"
               }`}
             >
-              Available ({totalAvailable})
+              Pending Cases ({totalAvailable})
             </button>
             <button
               onClick={() => setActiveTab("myCases")}
@@ -393,7 +393,7 @@ const DoctorDashboard = () => {
                 <div className="flex flex-col gap-4">
                   <div>
                     <h3 className="text-gray-700 font-medium mb-1">
-                      Patient History
+                      Patient Symptoms
                     </h3>
                     <p className="text-gray-800 text-sm leading-relaxed">
                       {selectedCase.patientHistory}
