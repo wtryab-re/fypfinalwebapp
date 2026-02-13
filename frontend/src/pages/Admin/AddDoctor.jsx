@@ -62,6 +62,7 @@ const AddDoctor = () => {
       formData.append("about", about);
       formData.append("speciality", speciality);
       formData.append("degree", degree);
+      formData.append("verification_status", isVerified); // NEW: Include PMDC verification status
       formData.append(
         "address",
         JSON.stringify({ line1: address1, line2: address2 }),

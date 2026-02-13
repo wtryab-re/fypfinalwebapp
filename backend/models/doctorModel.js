@@ -17,8 +17,13 @@ const doctorSchema = new mongoose.Schema(
     address: { type: Object, required: true },
     date: { type: Number, required: true },
     status: { type: String, required: true, default: "approved" },
+    verification_status: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
-  { minimize: false }
+  { minimize: false },
 );
 
 const doctorModel =

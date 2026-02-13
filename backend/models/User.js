@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
     age: Number,
     gender: { type: String, enum: ["Male", "Female", "Other"] },
     phoneNumber: { type: String },
-    cnic: { type: String },
+    cnic: { type: String, unique: true },
     email: { type: String },
     password: { type: String },
     role: { type: String, enum: ["patient", "worker"] },
@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const User =

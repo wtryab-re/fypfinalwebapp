@@ -10,6 +10,8 @@ const DoctorProfile = () => {
   const { currency, backendUrl } = useContext(AppContext);
   const [isEdit, setIsEdit] = useState(false);
   const [expandedImage, setExpandedImage] = useState(null);
+  const [password, setPassword] = useState(""); // new password
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const getInitials = (name) => {
     if (!name) return "DR";
@@ -35,20 +37,32 @@ const DoctorProfile = () => {
   };
 
   const updateProfile = async () => {
+    if (password && password !== confirmPassword) {
+      return toast.error("New password and confirm password do not match.");
+    }
+
     try {
+      const payload = {
+        address: profileData.address,
+        fees: profileData.fees,
+        about: profileData.about,
+        available: profileData.available,
+      };
+
+      // Include password if set
+      if (password) payload.password = password;
+
       const { data } = await axios.post(
         backendUrl + "/api/doctor/update-profile",
-        {
-          address: profileData.address,
-          fees: profileData.fees,
-          about: profileData.about,
-          available: profileData.available,
-        },
-        { headers: { dToken } }
+        payload,
+        { headers: { dToken } },
       );
+
       if (data.success) {
         toast.success(data.message);
         setIsEdit(false);
+        setPassword("");
+        setConfirmPassword("");
         getProfileData();
       } else toast.error(data.message);
     } catch (err) {
@@ -121,7 +135,7 @@ const DoctorProfile = () => {
           ) : (
             <div
               className={`w-24 h-24 rounded-full flex items-center justify-center text-white text-2xl font-bold ${getAvatarColor(
-                profileData.name
+                profileData.name,
               )}`}
             >
               {getInitials(profileData.name)}
@@ -204,16 +218,6 @@ const DoctorProfile = () => {
           <div className="space-y-4">
             <div className="bg-white rounded-xl shadow p-4">
               <h2 className="text-sm font-semibold text-gray-700 mb-2">
-                Consultation Fee
-              </h2>
-              <span className="text-lg font-bold text-[#3a8dff]">
-                {currency}
-                {profileData.fees}
-              </span>
-            </div>
-
-            <div className="bg-white rounded-xl shadow p-4">
-              <h2 className="text-sm font-semibold text-gray-700 mb-2">
                 Address
               </h2>
               {isEdit ? (
@@ -249,6 +253,36 @@ const DoctorProfile = () => {
                   <br />
                   {profileData.address.line2}
                 </p>
+              )}
+            </div>
+
+            {/* Change Password */}
+            <div className="bg-white rounded-xl shadow p-4">
+              <h2 className="text-sm font-semibold text-gray-700 mb-3">
+                Change Password
+              </h2>
+              {isEdit ? (
+                <div className="space-y-3">
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#3a8dff]"
+                    placeholder="New Password"
+                  />
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#3a8dff]"
+                    placeholder="Confirm New Password"
+                  />
+                  <p className="text-xs text-gray-400">
+                    Leave blank if you don’t want to change your password.
+                  </p>
+                </div>
+              ) : (
+                <p className="text-gray-600 text-sm">********</p>
               )}
             </div>
           </div>

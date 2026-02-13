@@ -22,7 +22,7 @@ const WorkerApproval = () => {
         backendUrl + "/api/admin/pending-workers",
         {
           headers: { aToken },
-        }
+        },
       );
       if (data.success) setPendingWorkers(data.workers);
       else toast.error(data.message);
@@ -60,7 +60,7 @@ const WorkerApproval = () => {
         backendUrl + "/api/admin/approved-workers",
         {
           headers: { aToken },
-        }
+        },
       );
       if (data.success) setApprovedWorkers(data.workers);
       else toast.error(data.message);
@@ -78,7 +78,7 @@ const WorkerApproval = () => {
       const { data } = await axios.post(
         backendUrl + "/api/admin/update-worker-status",
         { workerId, isApproved: true },
-        { headers: { aToken } }
+        { headers: { aToken } },
       );
       if (data.success) {
         toast.success(data.message);
@@ -96,7 +96,7 @@ const WorkerApproval = () => {
       const { data } = await axios.post(
         backendUrl + "/api/admin/update-worker-status",
         { workerId, isApproved: false },
-        { headers: { aToken } }
+        { headers: { aToken } },
       );
       if (data.success) {
         toast.success(`Rejected: ${workerName}`);
@@ -114,7 +114,7 @@ const WorkerApproval = () => {
       const { data } = await axios.post(
         backendUrl + "/api/admin/delete-worker",
         { workerId },
-        { headers: { aToken } }
+        { headers: { aToken } },
       );
       if (data.success) {
         toast.success(`Deleted: ${workerName}`);
@@ -177,11 +177,11 @@ const WorkerApproval = () => {
   const toggleSelectOne = (type, id) => {
     if (type === "pending") {
       setSelectedPending((prev) =>
-        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
       );
     } else {
       setSelectedApproved((prev) =>
-        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
       );
     }
   };
@@ -376,7 +376,7 @@ const WorkerApproval = () => {
                           />
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
-                          Worker ID
+                          ID
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
                           Name
@@ -389,6 +389,9 @@ const WorkerApproval = () => {
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
                           CNIC
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
+                          Work ID
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
                           Joined Date
@@ -429,6 +432,9 @@ const WorkerApproval = () => {
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-500">
                               {worker.cnic}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-500">
+                              {worker.workerID ? worker.workerID : "N/A"}
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-500">
                               {new Date(worker.createdAt).toLocaleDateString()}

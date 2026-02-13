@@ -61,7 +61,7 @@ const DoctorList = () => {
 
     if (
       window.confirm(
-        `Are you sure you want to delete ${selectedDoctors.length} selected doctor(s)?`
+        `Are you sure you want to delete ${selectedDoctors.length} selected doctor(s)?`,
       )
     ) {
       try {
@@ -80,7 +80,7 @@ const DoctorList = () => {
     setSelectedDoctors((prev) =>
       prev.includes(doctorId)
         ? prev.filter((id) => id !== doctorId)
-        : [...prev, doctorId]
+        : [...prev, doctorId],
     );
   };
 
@@ -159,7 +159,7 @@ const DoctorList = () => {
                   <th className="px-4 py-3">Specialty</th>
                   <th className="px-4 py-3">Qualification</th>
                   <th className="px-4 py-3">Experience</th>
-                  <th className="px-4 py-3">Fees</th>
+                  <th className="px-4 py-3">Verification Status</th>
                   <th className="px-4 py-3">Availability</th>
                   <th className="px-4 py-3">Cases Reviewed</th>
                   <th className="px-4 py-3">Medical License</th>
@@ -192,8 +192,15 @@ const DoctorList = () => {
                     <td className="px-4 py-3">{doctor.degree}</td>
                     <td className="px-4 py-3">{doctor.experience}</td>
                     <td className="px-4 py-3">
-                      {currency}
-                      {doctor.fees}
+                      {doctor.verification_status ? (
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                          Verified
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                          Unverified
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span

@@ -139,13 +139,14 @@ const doctorProfile = async (req, res) => {
 // API to update doctor profile data from Doctor Panel
 const updateDoctorProfile = async (req, res) => {
   try {
-    const { docId, fees, about, address, available } = req.body;
+    const { docId, fees, about, address, available, password } = req.body;
 
     await doctorModel.findByIdAndUpdate(docId, {
       fees,
       address,
       about,
       available,
+      password: password ? await bcrypt.hash(password, 10) : undefined,
     });
 
     return res.json({ success: true, message: "Profile Updated" });
@@ -204,7 +205,7 @@ const getCases = async (req, res) => {
 
     // Fetch all AI_PROCESSED cases with AI results populated
     const allCases = await Case.find({
-      status: { $in: ["AI_PROCESSED", "ASSIGNED_TO_DOCTOR", "reviewed"] }
+      status: { $in: ["AI_PROCESSED", "ASSIGNED_TO_DOCTOR", "reviewed"] },
     })
       .populate("report.doctorId", "name speciality")
       .populate("aiResult")
@@ -212,28 +213,32 @@ const getCases = async (req, res) => {
       .sort({ createdAt: -1 });
 
     // Separate into available and assigned cases
-    const availableCases = allCases.filter(c => !c.assignedDoctor);
-    const myCases = allCases.filter(c => c.assignedDoctor && c.assignedDoctor._id.toString() === docId);
+    const availableCases = allCases.filter((c) => !c.assignedDoctor);
+    const myCases = allCases.filter(
+      (c) => c.assignedDoctor && c.assignedDoctor._id.toString() === docId,
+    );
 
-    console.log(`✅ Found ${availableCases.length} available cases, ${myCases.length} my cases`);
+    console.log(
+      `✅ Found ${availableCases.length} available cases, ${myCases.length} my cases`,
+    );
 
     // Prioritize both lists
     const prioritize = (cases) => {
       return cases.sort((a, b) => {
         const getPriority = (caseData) => {
           if (!caseData.aiResult || !caseData.aiResult.predictions) return 3;
-          
+
           const topPrediction = caseData.aiResult.predictions[0];
           if (!topPrediction) return 3;
 
           const label = topPrediction.label.toLowerCase();
           const confidence = topPrediction.confidence;
 
-          if (label.includes('tb') && confidence > 80) return 0;
-          if (label.includes('pneumonia') && confidence > 80) return 1;
-          if (label.includes('tb') && confidence > 50) return 2;
-          if (label.includes('pneumonia') && confidence > 50) return 3;
-          
+          if (label.includes("tb") && confidence > 80) return 0;
+          if (label.includes("pneumonia") && confidence > 80) return 1;
+          if (label.includes("tb") && confidence > 50) return 2;
+          if (label.includes("pneumonia") && confidence > 50) return 3;
+
           return 4;
         };
 
@@ -241,10 +246,10 @@ const getCases = async (req, res) => {
       });
     };
 
-    return res.json({ 
-      success: true, 
+    return res.json({
+      success: true,
       availableCases: prioritize(availableCases),
-      myCases: prioritize(myCases)
+      myCases: prioritize(myCases),
     });
   } catch (error) {
     console.log("❌ Error in getCases:", error);
@@ -290,17 +295,17 @@ const acceptCase = async (req, res) => {
     // Check if already assigned
     if (caseData.assignedDoctor) {
       console.log(`❌ Case already assigned to ${caseData.assignedDoctor}`);
-      return res.json({ 
-        success: false, 
-        message: "This case has already been accepted by another doctor" 
+      return res.json({
+        success: false,
+        message: "This case has already been accepted by another doctor",
       });
     }
 
     // Check if case is in correct status
     if (caseData.status !== "AI_PROCESSED") {
-      return res.json({ 
-        success: false, 
-        message: "Case is not ready for assignment" 
+      return res.json({
+        success: false,
+        message: "Case is not ready for assignment",
       });
     }
 
@@ -311,10 +316,10 @@ const acceptCase = async (req, res) => {
 
     console.log(`✅ Case ${caseId} assigned to doctor ${docId}`);
 
-    return res.json({ 
-      success: true, 
+    return res.json({
+      success: true,
       message: "Case accepted successfully",
-      case: caseData 
+      case: caseData,
     });
   } catch (error) {
     console.log("❌ Error in acceptCase:", error);
@@ -332,9 +337,9 @@ const rejectCase = async (req, res) => {
 
     // We don't need to modify the case, just return success
     // The case will disappear from the doctor's available list
-    return res.json({ 
-      success: true, 
-      message: "Case rejected" 
+    return res.json({
+      success: true,
+      message: "Case rejected",
     });
   } catch (error) {
     console.log("❌ Error in rejectCase:", error);
@@ -367,10 +372,13 @@ const submitReport = async (req, res) => {
     }
 
     // SECURITY CHECK: Verify this doctor is assigned to this case
-    if (!caseData.assignedDoctor || caseData.assignedDoctor.toString() !== docId) {
-      return res.json({ 
-        success: false, 
-        message: "You are not authorized to submit a report for this case" 
+    if (
+      !caseData.assignedDoctor ||
+      caseData.assignedDoctor.toString() !== docId
+    ) {
+      return res.json({
+        success: false,
+        message: "You are not authorized to submit a report for this case",
       });
     }
 

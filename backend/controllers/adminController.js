@@ -69,6 +69,7 @@ const addDoctor = async (req, res) => {
       about,
       fees,
       address,
+      verification_status,
     } = req.body;
     const imageFile = req.files?.image?.[0]; // Profile image
     const certificateFile = req.files?.certificate?.[0]; // Certificate image
@@ -82,7 +83,8 @@ const addDoctor = async (req, res) => {
       !experience ||
       !about ||
       !fees ||
-      !address
+      !address ||
+      !verification_status
     ) {
       return res.json({ success: false, message: "Missing Details" });
     }
@@ -133,6 +135,7 @@ const addDoctor = async (req, res) => {
       fees,
       address: JSON.parse(address),
       date: Date.now(),
+      verification_status, // Save PMDC verification status
     };
 
     const newDoctor = new doctorModel(doctorData);
