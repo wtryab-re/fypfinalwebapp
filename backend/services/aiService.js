@@ -1,7 +1,7 @@
 import axios from "axios";
 import FormData from "form-data";
 
-const AI_BASE_URL = "http://localhost:8080"; // Flask API
+const AI_BASE_URL = "https://fypfinalwebapp-1.onrender.com"; // Flask API
 
 export const sendImageToAI = async (imageUrl, imageBuffer) => {
   try {
