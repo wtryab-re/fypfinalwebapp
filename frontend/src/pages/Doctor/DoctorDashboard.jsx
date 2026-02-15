@@ -176,7 +176,7 @@ const DoctorDashboard = () => {
                   : "text-gray-600 hover:bg-gray-100"
               }`}
             >
-              Pending Cases ({totalAvailable})
+              All Cases ({totalAvailable})
             </button>
             <button
               onClick={() => setActiveTab("myCases")}
@@ -320,7 +320,7 @@ const DoctorDashboard = () => {
                           </span>
                         ) : (
                           <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded font-semibold">
-                            ⏳ Pending Review
+                            Pending Review
                           </span>
                         )}
                       </div>
@@ -384,7 +384,7 @@ const DoctorDashboard = () => {
                 {activeTab === "myCases" &&
                   selectedCase.status === "reviewed" && (
                     <span className="px-4 py-2 bg-green-500 text-white font-semibold text-sm rounded">
-                      ✓ Report Submitted
+                      Report Submitted
                     </span>
                   )}
               </div>
