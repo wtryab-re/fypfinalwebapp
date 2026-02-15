@@ -41,7 +41,7 @@ const caseSchema = new mongoose.Schema(
         "ASSIGNED_TO_DOCTOR",
         "pending",
         "reviewed",
-        "completed"
+        "completed",
       ],
       default: "pending",
     },
@@ -75,7 +75,7 @@ const caseSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Case = mongoose.model("Case", caseSchema);
