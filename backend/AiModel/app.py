@@ -28,8 +28,10 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['HEATMAP_FOLDER'], exist_ok=True)
 
 # Node.js Backend API URLs
-WEBSITE_API_URL = "http://localhost:4000/api"  # Website backend (with auth)
-APP_API_URL = "http://localhost:5000/api/cases"  # App backend (no auth, for cases)
+# Node.js Backend API URLs
+WEBSITE_API_URL = "https://fypfinalwebapp.onrender.com/api"
+APP_API_URL = "https://fypfinalwebapp.onrender.com/api/cases"
+
 
 MODEL_PATH = 'models/mobileNetV2.keras'
 
@@ -264,5 +266,7 @@ def view_case_detail(case_id):
         print(f"Error fetching case detail: {e}")
         return f"Error loading case: {str(e)}", 500
 
-if __name__ == '__main__':
-    app.run(debug=True, host="localhost", port=8080)
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    app.run(debug=True, host="0.0.0.0", port=port)
