@@ -1,6 +1,6 @@
 import Case from "../models/Case.js";
 import doctorModel from "../models/doctorModel.js";
-import AIResult from "../models/AiResult.js";
+import AIResult from "../models/AIResult.js";
 import { sendImageToAI } from "../services/aiService.js";
 
 // API to get all cases for doctor panel
@@ -25,7 +25,7 @@ const getCaseById = async (req, res) => {
 
     const caseData = await Case.findById(caseId).populate(
       "report.doctorId",
-      "name speciality"
+      "name speciality",
     );
 
     if (!caseData) {
@@ -94,7 +94,6 @@ const submitReport = async (req, res) => {
     return res.json({ success: false, message: error.message });
   }
 };
-
 
 const processCaseWithAI = async (caseId) => {
   try {
