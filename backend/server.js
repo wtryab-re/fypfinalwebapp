@@ -47,9 +47,7 @@ app.use("/api/admin", adminRouter);
 app.use("/api/doctor", doctorRouter);
 app.use("/api/messages", messageRouter);
 app.use("/api/cases", caseRouter);
-app.use("/", (req, res) => {
-  res.json({ success: true, message: "API working" });
-});
+
 // Test route
 app.get("/", (req, res) => {
   res.json({ success: true, message: "API working" });

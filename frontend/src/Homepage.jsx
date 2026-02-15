@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 // Import images from assets folder
 import service1Img from "./assets/doctors.jpg";
 import service2Img from "./assets/lungs.png";
-import service3Img from "./assets/logo.png";
-import logoImage from "./assets/logo.png";
+import service3Img from "./assets/Logo.png";
+import logoImage from "./assets/Logo.png";
 
 import img1 from "./assets/lung-image.png";
 import img2 from "./assets/lung-inspection.png";
