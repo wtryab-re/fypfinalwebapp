@@ -97,7 +97,7 @@ const PulmoVisionHomepage = () => {
         <div className="flex items-center gap-6">
           <div className="flex gap-3">
             <a
-              href={`${import.meta.env.VITE_APP_BASE_URL}/login`}
+              href={`/login`}
               className="px-6 py-2.5 border-2 border-[#1a78d2] text-[#1a78d2] rounded-lg font-semibold hover:bg-[#1a78d2] hover:text-white transition-all inline-block text-center"
             >
               Login
