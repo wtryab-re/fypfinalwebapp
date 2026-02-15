@@ -52,7 +52,7 @@ app.use("/", (req, res) => {
 });
 // Test route
 app.get("/", (req, res) => {
-  res.send("API Working");
+  res.json({ success: true, message: "API working" });
 });
 
 // ===== SOCKET.IO REAL-TIME MESSAGING =====
