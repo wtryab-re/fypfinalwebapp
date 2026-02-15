@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import Case from "../models/Case.js";
-import AIResult from "../models/AiResult.js";
+import AIResult from "../models/AIResult.js";
 import { sendImageToAI } from "../services/aiService.js";
 
 // API for doctor Login
